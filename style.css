@@ -1,0 +1,562 @@
+:root {
+    --couleur-accent: #e56400;
+}
+
+body {
+    font-family: "Montserrat", sans-serif;
+    background-color: #ffffff;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+background-color: #ffffff;
+    padding: 15px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 999;
+}
+
+.vide {
+    padding: 30px;
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-bottom: 2px solid var(--couleur-accent, #e56400);
+}
+
+
+
+nav {
+    display: flex;
+    gap: 30px;
+}
+
+nav a {
+    text-decoration: none;
+    color: black;
+    font-size: 21px;
+    font-weight: 700;
+}
+
+
+
+main {
+    padding: 120px 20px 30px 20px;
+}
+
+
+.menu p {
+    color: var(--couleur-accent, #e56400);
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin: 0;
+}
+
+.menu h1 {
+    font-size: 28px;
+    font-weight: 800;
+    color: #1a1a1a;
+    margin: 5px 0 20px 0;
+}
+
+.select {
+    display: flex;
+    gap: 15px;
+    padding-top: 10px;
+    justify-content: start;
+    margin-bottom: 30px;
+}
+
+.selectt button {
+    padding: 3px;
+   background-color: #f5f5f5;;
+    color: #1a1a1a;
+    text-align: center;
+    width: 150px;
+    border-radius: 30px;
+    border: 1px solid black;
+    cursor: pointer;
+    height: 50px;
+    font-size: 15px;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.selectt button:hover {
+    background-color: white;
+    color: var(--couleur-accent, #e56400);
+}
+
+.selectt button.active {
+    background-color: white;
+    color: black;
+    border-color: black;
+}
+
+.selecttt button {
+    padding: 3px;
+   background-color: white;
+   color: var(--couleur-accent, #e56400);
+    text-align: center;
+    width: 150px;
+    border-radius: 30px;
+    border: 1px solid var(--couleur-accent, #e56400);
+    cursor: pointer;
+    height: 50px;
+    font-size: 15px;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.selecttt button:hover {
+    background-color: var(--couleur-accent, #e56400);
+    color: white;
+}
+
+.selecttt button.active {
+    background-color: var(--couleur-accent, #e56400);
+    
+    color: white;
+}
+
+.product-card {
+background-color: #f5f5f5;
+    border-radius: 16px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    transition: transform 0.2s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+}
+
+.product-card img {
+    width: 100%;
+    height: 220px;
+    object-fit: contain;
+    border-radius: 10px;
+    background-color: white;
+}
+
+.product-card .produit {
+    font-weight: 700;
+    font-size: 16px;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.product-card .prix {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--couleur-accent, #e56400);
+    margin: 0;
+}
+
+.product-card a {
+    text-decoration: none;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.product-card a:first-of-type {
+    background-color: var(--couleur-accent, #e56400);
+    color: white;
+    border: 2px solid var(--couleur-accent, #e56400);
+}
+
+.product-card a:first-of-type:hover {
+    background-color: transparent;
+    color: var(--couleur-accent, #e56400);
+}
+
+.product-card a:last-of-type {
+    background-color: transparent;
+    color: var(--couleur-accent, #e56400);
+    border: 2px solid var(--couleur-accent, #e56400);
+}
+
+.product-card a:last-of-type:hover {
+    background-color: var(--couleur-accent, #e56400);
+    color: white;
+}
+
+footer {
+    margin-top: 40px;
+    padding: 20px;
+    text-align: center;
+    background-color: #1a1a1a;
+    color: white;
+    font-size: 13px;
+}
+
+.produit-detail {
+    display: flex;
+    gap: 40px;
+    padding: 30px 20px;
+    align-items: flex-start;
+}
+
+.left {
+    flex: 1;
+}
+
+.left img {
+    width: 100%;
+    border-radius: 16px;
+    object-fit: cover;
+    
+}
+
+.right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+   
+}
+
+.right .nom {
+    font-size: 24px;
+    font-weight: 800;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.right .prix {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--couleur-accent, #e56400);
+    margin: 0;
+}
+
+.right textarea {
+    padding: 12px;
+    border-radius: 10px;
+    border: 2px solid #e0e0e0;
+    font-family: "Montserrat", sans-serif;
+    font-size: 14px;
+    resize: none;
+    height: 100px;
+    background-color: #ffffff;
+}
+
+.right a {
+    background-color: var(--couleur-accent, #e56400);
+    color: white;
+    text-align: center;
+    padding: 15px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.right textarea,
+.right a {
+    width: 100%;
+    box-sizing: border-box;
+    align-items: stretch;
+}
+
+@media (max-width: 768px) {
+    .produit-detail {
+        flex-direction: column;
+
+    }
+    .right textarea,
+.right a {
+    width: 151%;
+
+}
+
+
+}
+
+#panier {
+    position: fixed;
+    top: 0;
+    right: -400px; /* caché par défaut */
+    width: 350px;
+    height: 100vh;
+    background-color: #ffffff;
+    box-shadow: -4px 0 15px rgba(0,0,0,0.1);
+    padding: 20px;
+    overflow-y: auto;
+    transition: right 0.3s ease;
+    z-index: 1000;
+}
+
+#panier.ouvert {
+    right: 0; /* visible quand ouvert */
+}
+
+
+.pan {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: white;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.pan .top {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.pan .top .image img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.pan .top .details h4 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.pan .top .details p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--couleur-accent, #e56400);
+    font-weight: 600;
+}
+
+.pan .bottom {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pan .bottom .countt {
+    font-weight: 700;
+    font-size: 15px;
+    min-width: 20px;
+    text-align: center;
+}
+
+.pan .bottom button {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid var(--couleur-accent, #e56400);
+    background-color: transparent;
+    color: var(--couleur-accent, #e56400);
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.pan .bottom button:hover {
+    background-color: var(--couleur-accent, #e56400);
+    color: white;
+}
+
+.toggle {
+    margin-bottom: 10px;
+    background-color: #1a1a1a;
+    color: white;
+    border: none;
+    border-radius: 10px;
+}
+
+
+.gg  {
+    text-decoration: none;
+    color: black;
+    background-color: var(--couleur-accent, #e56400);
+    padding: 10px;
+margin-top: 40px;
+  color: white;
+  font-weight: 600;
+  border-radius: 10px;
+}
+
+.commande-layout {
+    display: flex;
+    gap: 40px;
+    padding: 30px 20px;
+    align-items: flex-start;
+}
+
+.lefft {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.rightt {
+    flex: 1;
+    background-color: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.rightt h3 {
+    font-size: 18px;
+    font-weight: 800;
+    color: #1a1a1a;
+    margin: 0 0 15px 0;
+}
+
+.resume-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.resume-item p {
+    margin: 0;
+}
+
+.resume-item .commentaire {
+    font-size: 12px;
+    color: #888;
+    font-weight: 400;
+}
+
+.total {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--couleur-accent, #e56400);
+    text-align: right;
+    margin-top: 15px;
+}
+
+.paiement {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    background-color: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+.paiement h4 {
+    font-size: 14px;
+    font-weight: 700;
+    margin: 10px 0 5px 0;
+}
+
+.paiement img {
+height: 60px;
+}
+
+.paiement p {
+    font-size: 13px;
+    color: var(--couleur-accent, #e56400);
+    font-weight: 600;
+    margin: 0;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.form input {
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+    font-family: "Montserrat", sans-serif;
+    font-size: 14px;
+    background-color: #ffffff;
+    outline: none;
+    transition: border 0.2s ease;
+}
+
+.form input:focus {
+    border-color: var(--couleur-accent, #e56400);
+}
+
+.btn-envoyer {
+    background-color: var(--couleur-accent, #e56400);
+    color: white;
+    text-align: center;
+    padding: 15px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    transition: all 0.2s ease;
+}
+
+.btn-envoyer:hover {
+    background-color: transparent;
+    color: var(--couleur-accent, #e56400);
+    border: 2px solid var(--couleur-accent, #e56400);
+}
+
+
+.toast {
+    position: fixed;
+    bottom: 250px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--couleur-accent, #e56400);
+    color: white;
+    padding: 12px 25px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 14px;
+    z-index: 9999;
+}
+
+
+@media (max-width: 768px) {
+    .commande-layout {
+        flex-direction: column;
+    }
+
+    .lefft
+  {
+        width: 100%;
+    }
+
+ 
+    .rightt {
+        width: 85%;
+    }
+}

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commande</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <a href="index.html" style="text-decoration: none; color: black;"><h5>CMD.</h5></a>
+        </div>
+        <div id="panier"></div>
+        <nav>
+            <div class="panier-count">
+                <span id="compteur" style="background-color: brown; padding: 5px; border-radius: 25%; color: white;">0</span>
+                <a href="#" onclick="voirpanier()">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M223.5-103.5Q200-127 200-160t23.5-56.5Q247-240 280-240t56.5 23.5Q360-193 360-160t-23.5 56.5Q313-80 280-80t-56.5-23.5Zm400 0Q600-127 600-160t23.5-56.5Q647-240 680-240t56.5 23.5Q760-193 760-160t-23.5 56.5Q713-80 680-80t-56.5-23.5ZM246-720l96 200h280l110-200H246Zm-38-80h590q23 0 35 20.5t1 41.5L692-482q-11 20-29.5 31T622-440H324l-44 80h480v80H280q-45 0-68-39.5t-2-78.5l54-98-144-304H40v-80h130l38 80Zm134 280h280-280Z"/></svg>
+                </a>
+            </div>
+            <a href="https://wa.me/33612345678?text=Bonjour, je voudrais passer une commande !" target="_blank">
+                <i class="fa-brands fa-whatsapp"></i>
+            </a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="menu">
+            <p>Achat</p>
+            <h1>Finaliser votre commande</h1>
+        </div>
+
+        <div class="commande-layout">
+            <div class="lefft">
+                <!-- Mode paiement -->
+                <div class="select">
+                    <div class="selecttt">
+                        <button class="menu-btn active" onclick="modePaiement('surplace', this)">Sur place</button>
+                    </div>
+                    <div class="selecttt">
+                        <button class="menu-btn" onclick="modePaiement('online', this)">Online</button>
+                    </div>
+                </div>
+
+                <!-- Paiement online -->
+                <div class="paiement" style="display: none;">
+                    <div>
+                        <img src="Photoroom_20260421_180110.PNG" alt="Wave">
+                        <h4>Payer avec Wave</h4>
+                        <p id="wave-numero">—</p>
+                    </div>
+                    <div>
+                        <img src="Photoroom_20260421_180120.PNG" alt="Orange Money">
+                        <h4>Payer avec OM</h4>
+                        <p id="om-numero">—</p>
+                    </div>
+                </div>
+
+                <!-- Formulaire -->
+                <div class="form">
+                    <label for="nom">Nom</label>
+                    <input type="text" id="nom" required>
+
+                    <label for="prenom">Prénom</label>
+                    <input type="text" id="prenom" required>
+
+                    <label for="numero">Numéro</label>
+                    <input type="text" id="numero" required>
+
+                    <label for="heure">Heure de récupération</label>
+                    <input type="time" id="heure" required>
+
+                </div>
+
+                <!-- Bouton envoyer -->
+                <a href="javascript:void(0)" onclick="envoyerCommande()" class="btn-envoyer">
+                    Envoyer sur WhatsApp
+                </a>
+            </div>
+
+            <!-- Résumé commande -->
+            <div class="rightt">
+                <h3>Votre commande</h3>
+                <div id="resume"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>2026 Copyrights</p>
+    </footer>
+
+    <script src="supabase-config.js"></script>
+    <script src="script.js"></script>
+    <script src="voirpanier.js"></script>
+    <script src="commande.js"></script>
+</body>
+</html>
