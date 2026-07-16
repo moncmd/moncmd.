@@ -66,32 +66,67 @@ function remplirPaiement() {
 }
 
 function genererCards() {
-  const listeCrepes = document.querySelector('.crêpes .splide__list');
-  const listeJus = document.querySelector('.juslocaux .splide__list');
-  if (listeCrepes) listeCrepes.innerHTML = '';
-  if (listeJus) listeJus.innerHTML = '';
+  const boutonsContainer = document.getElementById('categories-boutons');
+  const produitsContainer = document.getElementById('categories-produits');
+  if (!boutonsContainer || !produitsContainer) return; // pas sur cette page (ex: commande.html)
 
-  produits.forEach(produit => {
-    const li = document.createElement('li');
-    li.classList.add('splide__slide');
+  boutonsContainer.innerHTML = '';
+  produitsContainer.innerHTML = '';
 
-    li.innerHTML = `
-    <div class="product-card">
-        <img src="${produit.image_url}" alt="${produit.nom}">
-        <p class="produit">${produit.nom}</p>
-        <p class="prix">${produit.prix} FCFA</p>
-        <a href="panier.html?id=${produit.id}">Voir</a>
-        <a href="javascript:void(0)" onclick="ajouterAuPanier('${produit.id}')">Ajouter au panier</a>
-    </div>
-    `;
-
-    if (produit.categorie === 'crepes' && listeCrepes) {
-      listeCrepes.appendChild(li);
-    } else if (listeJus) {
-      listeJus.appendChild(li);
-    }
+  // 1. Trouver les catégories réellement utilisées par ce vendeur, dans l'ordre d'apparition
+  const categories = [];
+  produits.forEach(p => {
+    const cat = p.categorie || 'general';
+    if (!categories.includes(cat)) categories.push(cat);
   });
 
+  if (categories.length === 0) {
+    produitsContainer.innerHTML = '<p style="text-align:center; padding:40px 20px; color:#999;">Aucun produit pour le moment.</p>';
+    return;
+  }
+
+  // 2. Générer un bouton par catégorie
+  categories.forEach((cat, index) => {
+    const div = document.createElement('div');
+    div.classList.add('selectt');
+    div.innerHTML = `<button class="menu-btn${index === 0 ? ' active' : ''}" data-cat="${cat}" onclick="afficherCategorie('${cat}', this)">${formaterNomCategorie(cat)}</button>`;
+    boutonsContainer.appendChild(div);
+  });
+
+  // 3. Générer un conteneur de produits (carrousel) par catégorie
+  categories.forEach((cat, index) => {
+    const section = document.createElement('div');
+    section.classList.add('categorie-section');
+    section.dataset.cat = cat;
+    section.style.display = index === 0 ? 'block' : 'none';
+
+    section.innerHTML = `
+      <div class="splide" role="group">
+        <div class="splide__track">
+          <ul class="splide__list"></ul>
+        </div>
+      </div>
+    `;
+    produitsContainer.appendChild(section);
+
+    const liste = section.querySelector('.splide__list');
+    produits.filter(p => (p.categorie || 'general') === cat).forEach(produit => {
+      const li = document.createElement('li');
+      li.classList.add('splide__slide');
+      li.innerHTML = `
+        <div class="product-card">
+            <img src="${produit.image_url}" alt="${produit.nom}">
+            <p class="produit">${produit.nom}</p>
+            <p class="prix">${produit.prix} FCFA</p>
+            <a href="panier.html?id=${produit.id}">Voir</a>
+            <a href="javascript:void(0)" onclick="ajouterAuPanier('${produit.id}')">Ajouter au panier</a>
+        </div>
+      `;
+      liste.appendChild(li);
+    });
+  });
+
+  // 4. Monter Splide sur chaque carrousel généré
   document.querySelectorAll('.splide').forEach(slider => {
     if (slider.splide) slider.splide.destroy(true);
     const instance = new Splide(slider, {
@@ -103,6 +138,21 @@ function genererCards() {
     });
     instance.mount();
     slider.splide = instance;
+  });
+}
+
+// Transforme "jus" -> "Jus", "plats_chauds" -> "Plats chauds"
+function formaterNomCategorie(cat) {
+  return cat.replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
+}
+
+// Bascule l'affichage entre catégories
+function afficherCategorie(cat, bouton) {
+  document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
+  bouton.classList.add('active');
+
+  document.querySelectorAll('.categorie-section').forEach(section => {
+    section.style.display = section.dataset.cat === cat ? 'block' : 'none';
   });
 }
 
