@@ -150,8 +150,9 @@ background-color: #ffffff;
     display: flex;
     flex-direction: column;
     gap: 12px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.01);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin: 1px;
 }
 
 .product-card:hover {
@@ -241,6 +242,7 @@ footer {
 
 .left img {
     width: 100%;
+ 
     border-radius: 18px;
     object-fit: cover;
     
