@@ -70,12 +70,12 @@
             <div class="admin-card">
                 <h3>Mes informations</h3>
                 <div class="admin-form">
-                    <label style="font-size:13px; color:#777;">Numéro WhatsApp (sans le +, ex: 221784218267)</label>
-                    <input type="text" id="info-whatsapp">
-                    <label style="font-size:13px; color:#777;">Numéro Wave</label>
-                    <input type="text" id="info-wave">
-                    <label style="font-size:13px; color:#777;">Numéro Orange Money</label>
-                    <input type="text" id="info-om">
+                    <label style="font-size:13px; color:#777; width: 94%;">Numéro WhatsApp (sans le +, ex: 2217842178..)</label>
+                    <input type="text" id="info-whatsapp" style="width: 94%;">
+                    <label style="font-size:13px; color:#777; width: 94%;">Numéro Wave</label>
+                    <input type="text" id="info-wave" style="width: 94%;">
+                    <label style="font-size:13px; color:#777; width: 94%;">Numéro Orange Money</label>
+                    <input type="text" id="info-om" style="width: 94%;">
                     <button class="admin-btn" onclick="enregistrerInfos()">Enregistrer</button>
                     <p id="info-message" style="margin-top:10px;"></p>
                 </div>
@@ -84,11 +84,11 @@
             <div class="admin-card">
                 <h3>Ajouter un produit</h3>
                 <div class="admin-form">
-                    <input type="text" id="nouveau-nom" placeholder="Nom du produit">
-                    <input type="number" id="nouveau-prix" placeholder="Prix (FCFA)">
+                    <input type="text" id="nouveau-nom" placeholder="Nom du produit" style="width: 94%;">
+                    <input type="number" id="nouveau-prix" placeholder="Prix (FCFA)" style="width: 94%;">
                     <label style="font-size:13px; color:#777;">Photo du produit</label>
-                    <input type="file" id="nouveau-image-fichier" accept="image/*">
-                    <input type="text" id="nouveau-categorie" placeholder="Catégorie (ex: crepes, jus)">
+                    <input type="file" id="nouveau-image-fichier" accept="image/*" style="width: 94%;">
+                    <input type="text" id="nouveau-categorie" placeholder="Catégorie (ex: crepes, jus)" style="width: 94%;">
                     <label style="display:flex; align-items:center; gap:8px; margin-bottom:12px; font-size:14px; color:#555;">
                         <input type="checkbox" id="nouveau-favori" style="width:auto; margin:0;">
                         Mettre en avant sur le catalogue (produit populaire)
@@ -108,7 +108,7 @@
                 <div id="liste-commandes-admin"></div>
             </div>
 
-            <button class="admin-btn" style="background:#333; margin-top:10px;" onclick="deconnexion()">Se déconnecter</button>
+   
         </div>
 
     </main>
