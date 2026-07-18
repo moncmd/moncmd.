@@ -34,6 +34,7 @@ create table commandes (
   nom_client text,
   prenom_client text,
   numero_client text,
+  adresse text,
   heure_recuperation text,
   mode_paiement text,
   contenu jsonb not null,
@@ -66,6 +67,9 @@ create policy "Lecture publique produits actifs" on produits
 
 create policy "Creation publique commandes" on commandes
   for insert with check (true);
+
+create policy "Admin lit sa propre ligne" on admins
+  for select using (auth_user_id = auth.uid());
 
 create policy "Vendeur voit ses commandes" on commandes
   for select using (

@@ -45,6 +45,9 @@ async function chargerBoutique() {
   remplirPaiement();
   cacherEcranChargement(debutChargement);
 
+  // Si on est sur la page produit (panier.html?id=...), on affiche son détail
+  if (typeof afficherProduitDetail === 'function') afficherProduitDetail();
+
   // Si on est sur la page commande, le résumé ne peut être affiché
   // qu'une fois les produits chargés depuis Supabase
   if (typeof afficherResume === 'function') afficherResume();

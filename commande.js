@@ -30,10 +30,13 @@ function afficherResume() {
         total += sousTotal;
 
         resume.innerHTML += `
-            <div class="resume-item">
-                <p>${produit.nom} x${item.quantite}</p>
-                ${item.commentaire ? `<p class="commentaire">💬 ${item.commentaire}</p>` : ''}
-                <p>${sousTotal} FCFA</p>
+            <div class="resume-item" style="display:flex; gap:12px; align-items:center; margin-bottom:12px;">
+                <img src="${produit.image_url}" alt="${produit.nom}" style="width:50px; height:50px; object-fit:cover; border-radius:8px; flex-shrink:0;">
+                <div>
+                    <p>${produit.nom} x${item.quantite}</p>
+                    ${item.commentaire ? `<p class="commentaire">💬 ${item.commentaire}</p>` : ''}
+                    <p>${sousTotal} FCFA</p>
+                </div>
             </div>
         `;
     });
@@ -46,6 +49,7 @@ async function envoyerCommande() {
     const nom = document.getElementById('nom').value;
     const prenom = document.getElementById('prenom').value;
     const numero = document.getElementById('numero').value;
+    const adresse = document.getElementById('adresse').value;
     const heure = document.getElementById('heure').value;
 
     if (!nom || !prenom || !numero) {
@@ -82,6 +86,7 @@ async function envoyerCommande() {
     message += `\nTotal : ${total} FCFA`;
     message += `\n\nNom : ${nom} ${prenom}`;
     message += `\nNuméro : ${numero}`;
+    if (adresse) message += `\nAdresse : ${adresse}`;
     message += `\nHeure de récupération : ${heure}`;
 
     // Enregistrement dans Supabase avant l'ouverture de WhatsApp
@@ -90,6 +95,7 @@ async function envoyerCommande() {
         nom_client: nom,
         prenom_client: prenom,
         numero_client: numero,
+        adresse: adresse,
         heure_recuperation: heure,
         mode_paiement: modePaiementActuel,
         contenu: contenu,

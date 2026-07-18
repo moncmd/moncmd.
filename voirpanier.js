@@ -25,7 +25,7 @@ function afficherContenuPanier() {
         <div class="pan"> 
             <div class="top">
                 <div class="image">
-                    <img src="${produit.image}">
+                    <img src="${produit.image_url}">
                 </div>
                 <div class="details">
                     <h4>${produit.nom}</h4>

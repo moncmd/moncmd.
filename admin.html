@@ -28,7 +28,9 @@
 </head>
 <body>
     <header>
-        <div class="logo"><a href="index.html"><img src="1C621DE3-4443-4809-A987-882F313088E0_1_105_c.jpeg" alt="" srcset=""></a></div>
+        <div class="logo"> <a href="index.html"><img src="1C621DE3-4443-4809-A987-882F313088E0_1_105_c.jpeg" alt="" srcset=""></a>Admin</div>
+
+        <button class="admin-btn" style="background:#333; margin-top:10px; width: 150px;" onclick="deconnexion()">Se déconnecter</button>
     </header>
 
     <main class="admin-wrap">
@@ -38,8 +40,8 @@
             <h2>Connexion</h2>
             <p style="color:#777; margin-bottom: 20px;">Accédez à votre tableau de bord CMD.</p>
             <div class="admin-form">
-                <input type="email" id="login-email" placeholder="Email" style="width: 94%;">
-                <input type="password" id="login-password" placeholder="Mot de passe" style="width: 94%;">
+                <input type="email" id="login-email" placeholder="Email">
+                <input type="password" id="login-password" placeholder="Mot de passe">
                 <button class="admin-btn" onclick="connexion()">Se connecter</button>
                 <p id="login-erreur" style="color:red; margin-top:10px;"></p>
             </div>
@@ -84,7 +86,8 @@
                 <div class="admin-form">
                     <input type="text" id="nouveau-nom" placeholder="Nom du produit">
                     <input type="number" id="nouveau-prix" placeholder="Prix (FCFA)">
-                    <input type="text" id="nouveau-image" placeholder="Lien de l'image (URL)">
+                    <label style="font-size:13px; color:#777;">Photo du produit</label>
+                    <input type="file" id="nouveau-image-fichier" accept="image/*">
                     <input type="text" id="nouveau-categorie" placeholder="Catégorie (ex: crepes, jus)">
                     <label style="display:flex; align-items:center; gap:8px; margin-bottom:12px; font-size:14px; color:#555;">
                         <input type="checkbox" id="nouveau-favori" style="width:auto; margin:0;">

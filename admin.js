@@ -159,7 +159,7 @@ async function chargerProduits() {
 async function ajouterProduit() {
   const nom = document.getElementById('nouveau-nom').value;
   const prix = parseInt(document.getElementById('nouveau-prix').value);
-  const image_url = document.getElementById('nouveau-image').value;
+  const fichier = document.getElementById('nouveau-image-fichier').files[0];
   const categorie = document.getElementById('nouveau-categorie').value || 'general';
   const favori = document.getElementById('nouveau-favori').checked;
   const messageEl = document.getElementById('produit-message');
@@ -168,6 +168,35 @@ async function ajouterProduit() {
     messageEl.textContent = "Nom et prix sont obligatoires.";
     messageEl.style.color = 'red';
     return;
+  }
+
+  let image_url = '';
+
+  if (fichier) {
+    messageEl.textContent = "Envoi de la photo en cours...";
+    messageEl.style.color = '#777';
+
+    // Nom de fichier unique pour éviter d'écraser une image d'un autre produit
+    const nomFichier = `${vendeurConnecte.id}/${Date.now()}-${fichier.name}`;
+
+    const { error: erreurUpload } = await supabaseClient
+      .storage
+      .from('produits-images')
+      .upload(nomFichier, fichier);
+
+    if (erreurUpload) {
+      messageEl.textContent = "Erreur lors de l'envoi de la photo.";
+      messageEl.style.color = 'red';
+      return;
+    }
+
+    // Récupère le lien public généré automatiquement
+    const { data: urlData } = supabaseClient
+      .storage
+      .from('produits-images')
+      .getPublicUrl(nomFichier);
+
+    image_url = urlData.publicUrl;
   }
 
   const { error } = await supabaseClient.from('produits').insert({
@@ -185,7 +214,7 @@ async function ajouterProduit() {
   messageEl.style.color = 'green';
   document.getElementById('nouveau-nom').value = '';
   document.getElementById('nouveau-prix').value = '';
-  document.getElementById('nouveau-image').value = '';
+  document.getElementById('nouveau-image-fichier').value = '';
   document.getElementById('nouveau-categorie').value = '';
   document.getElementById('nouveau-favori').checked = false;
 

@@ -1,22 +1,22 @@
+// Affiche le détail d'un produit (page panier.html?id=...)
+// Appelée automatiquement une fois que chargerBoutique() a fini de charger les produits
+function afficherProduitDetail() {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id'); // UUID Supabase, pas un nombre — pas de parseInt ici
 
-  
-  
-  
-const params = new URLSearchParams(window.location.search);
-const id = parseInt(params.get('id'));
+  if (!id) return;
 
-if (id) {
   const produit = produits.find(p => p.id === id);
-  
-  document.querySelector('.left img').src = produit.image;
+  if (!produit) return;
+
+  document.querySelector('.left img').src = produit.image_url;
   document.querySelector('.left img').alt = produit.nom;
   document.querySelector('.right .nom').textContent = produit.nom;
-  document.querySelector('.right .description').textContent = produit.description;
+  document.querySelector('.right .description').textContent = produit.description || '';
   document.querySelector('.right .prix').textContent = produit.prix + ' FCFA';
-  
-  document.getElementById('btn-acheter').onclick = function() {
+
+  document.getElementById('btn-acheter').onclick = function () {
     const commentaire = document.querySelector('textarea').value;
     ajouterAuPanier(produit.id, commentaire);
-}
-
+  };
 }
