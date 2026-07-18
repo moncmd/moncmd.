@@ -15,8 +15,18 @@
 
 </head>
 <body>
+    <div id="ecran-chargement" style="position:fixed; inset:0; background:#ffffff; z-index:9999; display:flex; align-items:center; justify-content:center; transition: opacity 0.4s ease;">
+        <img src="logo.png" alt="CMD." style="width:70px; height:70px; animation: cmd-tourner 1s linear infinite;">
+    </div>
+    <style>
+        @keyframes cmd-tourner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</body>
     <header>
-       <div class="logo"><a href="index.html"><img src="1C621DE3-4443-4809-A987-882F313088E0_1_102_o.jpeg" alt="" sizes="" srcset=""></a></div>
+      <div class="logo"> <a href="index.html" style="text-decoration: none;"><img src="assets/logo.png" alt="CMD." class="logo-img"></a></div>
         <div id="panier"></div>
         <nav>
           <div class="panier-count">
@@ -30,7 +40,7 @@
     </header>
     <main>
       <div class="menu">
-        <p>Menu</p>
+        <p>Catalogue</p>
         <h1>Faites votre commande</h1>
       </div>
       <div class="select" id="categories-boutons">
@@ -41,7 +51,7 @@
       </div>
     </main>
     <footer>
-      <p>2026 Copyrights by <a href="https://hilarionv.github.io/PORTFOLIO/">HV</a></p>
+      <p>2026 Copyrights</p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4/dist/js/splide.min.js"></script>

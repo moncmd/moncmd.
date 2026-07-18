@@ -6,6 +6,7 @@ let produits = [];
 let vendeurActuel = null;
 
 async function chargerBoutique() {
+  const debutChargement = Date.now();
   const slug = getVendeurSlug();
 
   const { data: vendeur, error: errVendeur } = await supabaseClient
@@ -20,6 +21,7 @@ async function chargerBoutique() {
       <p style="text-align:center; padding: 60px 20px;">
         Cette boutique n'est pas disponible pour le moment.
       </p>`;
+    cacherEcranChargement(debutChargement);
     return;
   }
 
@@ -41,10 +43,27 @@ async function chargerBoutique() {
   genererCards();
   mettreAJourCompteur();
   remplirPaiement();
+  cacherEcranChargement(debutChargement);
 
   // Si on est sur la page commande, le résumé ne peut être affiché
   // qu'une fois les produits chargés depuis Supabase
   if (typeof afficherResume === 'function') afficherResume();
+}
+
+// Fait disparaître l'écran de chargement en fondu, après au moins ~900ms
+// (pour que le logo CMD. ait le temps d'être visible, même si le chargement est instantané)
+function cacherEcranChargement(debutChargement) {
+  const ecran = document.getElementById('ecran-chargement');
+  if (!ecran) return;
+
+  const dureeMin = 900;
+  const ecoule = Date.now() - (debutChargement || Date.now());
+  const attente = Math.max(0, dureeMin - ecoule);
+
+  setTimeout(() => {
+    ecran.style.opacity = '0';
+    setTimeout(() => ecran.remove(), 400);
+  }, attente);
 }
 
 function appliquerIdentiteVendeur(vendeur) {
@@ -110,11 +129,16 @@ function genererCards() {
     produitsContainer.appendChild(section);
 
     const liste = section.querySelector('.splide__list');
-    produits.filter(p => (p.categorie || 'general') === cat).forEach(produit => {
+    const produitsCategorie = produits
+      .filter(p => (p.categorie || 'general') === cat)
+      .sort((a, b) => (b.favori === true) - (a.favori === true)); // favoris en premier
+
+    produitsCategorie.forEach(produit => {
       const li = document.createElement('li');
       li.classList.add('splide__slide');
       li.innerHTML = `
         <div class="product-card">
+            ${produit.favori ? '<span class="badge-favori">★ Populaire</span>' : ''}
             <img src="${produit.image_url}" alt="${produit.nom}">
             <p class="produit">${produit.nom}</p>
             <p class="prix">${produit.prix} FCFA</p>

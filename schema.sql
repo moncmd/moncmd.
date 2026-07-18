@@ -23,6 +23,7 @@ create table produits (
   image_url text,
   categorie text default 'general',
   description text,
+  favori boolean default false,           -- mis en avant par le vendeur (produit populaire)
   actif boolean default true,
   date_creation timestamp default now()
 );
@@ -55,6 +56,11 @@ alter table admins enable row level security;
 create policy "Lecture publique vendeurs actifs" on vendeurs
   for select using (actif = true);
 
+create policy "Vendeur modifie ses propres informations" on vendeurs
+  for update using (
+    id in (select vendeur_id from admins where auth_user_id = auth.uid())
+  );
+
 create policy "Lecture publique produits actifs" on produits
   for select using (actif = true);
 
@@ -73,3 +79,15 @@ create policy "Vendeur gere ses produits" on produits
 
 insert into vendeurs (slug, nom_boutique, numero_whatsapp, wave_numero, om_numero)
 values ('demo', 'CMD Démo', '221784218267', '784218267', '775683106');
+
+-- ============================================
+-- MIGRATION : si tu as déjà exécuté ce script une première fois,
+-- exécute seulement la ligne suivante pour ajouter le champ favori
+-- (sans rien recréer, sans perdre tes données existantes)
+-- ============================================
+-- alter table produits add column if not exists favori boolean default false;
+--
+-- create policy "Vendeur modifie ses propres informations" on vendeurs
+--   for update using (
+--     id in (select vendeur_id from admins where auth_user_id = auth.uid())
+--   );

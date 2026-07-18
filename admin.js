@@ -59,6 +59,47 @@ async function chargerDashboard(authUserId) {
   await chargerStats();
   await chargerProduits();
   await chargerCommandes();
+  remplirInfosVendeur();
+}
+
+// Pré-remplit le formulaire "Mes informations" avec les données actuelles
+function remplirInfosVendeur() {
+  document.getElementById('info-whatsapp').value = vendeurConnecte.numero_whatsapp || '';
+  document.getElementById('info-wave').value = vendeurConnecte.wave_numero || '';
+  document.getElementById('info-om').value = vendeurConnecte.om_numero || '';
+}
+
+// Enregistre les modifications du vendeur sur ses propres informations
+async function enregistrerInfos() {
+  const numero_whatsapp = document.getElementById('info-whatsapp').value.trim();
+  const wave_numero = document.getElementById('info-wave').value.trim();
+  const om_numero = document.getElementById('info-om').value.trim();
+  const messageEl = document.getElementById('info-message');
+
+  if (!numero_whatsapp) {
+    messageEl.textContent = "Le numéro WhatsApp est obligatoire.";
+    messageEl.style.color = 'red';
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from('vendeurs')
+    .update({ numero_whatsapp, wave_numero, om_numero })
+    .eq('id', vendeurConnecte.id);
+
+  if (error) {
+    messageEl.textContent = "Erreur lors de l'enregistrement.";
+    messageEl.style.color = 'red';
+    return;
+  }
+
+  // Met à jour les données locales pour rester cohérent sans recharger la page
+  vendeurConnecte.numero_whatsapp = numero_whatsapp;
+  vendeurConnecte.wave_numero = wave_numero;
+  vendeurConnecte.om_numero = om_numero;
+
+  messageEl.textContent = "Informations mises à jour ✓";
+  messageEl.style.color = 'green';
 }
 
 async function chargerStats() {
@@ -107,7 +148,9 @@ async function chargerProduits() {
       <div class="commande-row">
         <strong>${p.nom}</strong> — ${p.prix} FCFA
         <span class="badge-statut">${p.categorie}</span>
-        <a href="javascript:void(0)" onclick="supprimerProduit('${p.id}')" style="float:right; color:red;">Retirer</a>
+        ${p.favori ? '<span class="badge-statut" style="background:var(--couleur-accent,#e56400); color:#fff;">★ En avant</span>' : ''}
+        <a href="javascript:void(0)" onclick="basculerFavori('${p.id}', ${p.favori})" style="float:right; margin-left:10px; color:var(--couleur-accent,#e56400);">${p.favori ? 'Retirer' : 'Mettre en avant'}</a>
+        <a href="javascript:void(0)" onclick="supprimerProduit('${p.id}')" style="float:right; color:red;">Retirer du site</a>
       </div>
     `;
   });
@@ -118,6 +161,7 @@ async function ajouterProduit() {
   const prix = parseInt(document.getElementById('nouveau-prix').value);
   const image_url = document.getElementById('nouveau-image').value;
   const categorie = document.getElementById('nouveau-categorie').value || 'general';
+  const favori = document.getElementById('nouveau-favori').checked;
   const messageEl = document.getElementById('produit-message');
 
   if (!nom || !prix) {
@@ -128,7 +172,7 @@ async function ajouterProduit() {
 
   const { error } = await supabaseClient.from('produits').insert({
     vendeur_id: vendeurConnecte.id,
-    nom, prix, image_url, categorie
+    nom, prix, image_url, categorie, favori
   });
 
   if (error) {
@@ -143,9 +187,15 @@ async function ajouterProduit() {
   document.getElementById('nouveau-prix').value = '';
   document.getElementById('nouveau-image').value = '';
   document.getElementById('nouveau-categorie').value = '';
+  document.getElementById('nouveau-favori').checked = false;
 
   await chargerProduits();
   await chargerStats();
+}
+
+async function basculerFavori(id, etatActuel) {
+  await supabaseClient.from('produits').update({ favori: !etatActuel }).eq('id', id);
+  await chargerProduits();
 }
 
 async function supprimerProduit(id) {
