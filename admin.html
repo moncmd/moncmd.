@@ -11,110 +11,231 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        .admin-wrap { max-width: 700px; margin: 0 auto; padding-top: 120px; padding-left: 20px; padding-right: 20px; padding-bottom: 40px; }
-        .admin-card { background: #fff; border-radius: 16px; padding: 24px; margin-bottom: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
-        .admin-form input { width: 100%; padding: 12px; margin-bottom: 12px; border-radius: 10px; border: 1px solid #ddd; }
-        .admin-btn { background: var(--couleur-accent, #e56400); color: #fff; border: none; padding: 12px 20px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; }
-        .stats-row { display: flex; gap: 16px; }
-        .stat-box { flex: 1; text-align: center; }
-        .stat-box h2 { margin: 0; color: var(--couleur-accent, #e56400); }
-        .stat-box p { margin: 4px 0 0; color: #666; font-size: 14px; }
-        .commande-row { border-bottom: 1px solid #eee; padding: 10px 0; }
-        .commande-row:last-child { border-bottom: none; }
-        .badge-statut { background: #f1f1f1; padding: 3px 10px; border-radius: 20px; font-size: 12px; }
+        body { background: #f6f6f8; }
+
+        /* ---- Login ---- */
+        .login-wrap { max-width: 380px; margin: 0 auto; padding-top: 140px; padding-left: 20px; padding-right: 20px; }
+        .login-card { background: #fff; border-radius: 18px; padding: 32px 28px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); text-align: center; }
+        .login-card h2 { margin-bottom: 6px; }
+        .login-card p.sub { color: #888; font-size: 14px; margin-bottom: 24px; }
+
+        /* ---- Layout général admin ---- */
+        .admin-shell { padding-top: 90px; padding-bottom: 90px; max-width: 900px; margin: 0 auto; padding-left: 16px; padding-right: 16px; }
         #vue-login { display: block; }
         #vue-dashboard { display: none; }
+
+        .admin-topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .admin-topbar h2 { margin: 0; font-size: 22px; margin-top: 30px;}
+        .admin-topbar .boutique-tag { font-size: 13px; color: #999; }
+        .btn-logout-icon { background: #fff; border: 1px solid #e5e5e5; width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #777; }
+        .btn-logout-icon:hover { background: #fafafa; }
+
+        /* ---- Tabs (onglets bas type app mobile) ---- */
+        .admin-tabs { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid #eee; display: flex; z-index: 50; padding-bottom: env(safe-area-inset-bottom); }
+        .admin-tab { flex: 1; text-align: center; padding: 12px 4px 10px; cursor: pointer; color: #999; font-size: 11px; border: none; background: none; }
+        .admin-tab i { display: block; font-size: 18px; margin-bottom: 4px; }
+        .admin-tab.actif { color: var(--couleur-accent, #e56400); }
+
+        .onglet-panel { display: none; }
+        .onglet-panel.actif { display: block; animation: fadeIn 0.25s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px);} to { opacity:1; transform: translateY(0);} }
+
+        /* ---- Cards ---- */
+        .admin-card { background: #fff; border-radius: 16px; padding: 22px; margin-bottom: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .admin-card h3 { margin: 0 0 16px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+        .admin-card h3 i { color: var(--couleur-accent, #e56400); }
+        .admin-form input, .admin-form select { width: 100%; padding: 12px; margin-bottom: 12px; border-radius: 10px; border: 1px solid #e5e5e5; font-family: inherit; font-size: 14px; box-sizing: border-box; }
+        .admin-btn { background: var(--couleur-accent, #e56400); color: #fff; border: none; padding: 13px 20px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; font-size: 14px; }
+        .admin-btn:active { opacity: 0.85; }
+        .admin-btn.secondaire { background: #f1f1f1; color: #333; }
+
+        /* ---- Stats ---- */
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+        .stat-box { background: #fff; border-radius: 14px; padding: 16px 10px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .stat-box .stat-icon { font-size: 15px; color: var(--couleur-accent, #e56400); margin-bottom: 6px; }
+        .stat-box h2 { margin: 0; font-size: 20px; }
+        .stat-box p { margin: 2px 0 0; color: #999; font-size: 11px; }
+
+        /* ---- Mini graphique 7 jours ---- */
+        .chart-bars { display: flex; align-items: flex-end; gap: 6px; height: 90px; margin-top: 4px; }
+        .chart-bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+        .chart-bar { width: 100%; background: var(--couleur-accent, #e56400); border-radius: 6px 6px 3px 3px; opacity: 0.85; min-height: 3px; transition: height 0.4s ease; }
+        .chart-bar-label { font-size: 10px; color: #aaa; margin-top: 6px; }
+        .chart-bar-val { font-size: 10px; color: #666; margin-bottom: 3px; font-weight: 600; }
+
+        /* ---- Produits ---- */
+        .produit-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+        .produit-row:last-child { border-bottom: none; }
+        .produit-thumb { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; background: #f1f1f1; flex-shrink: 0; }
+        .produit-infos { flex: 1; min-width: 0; }
+        .produit-infos strong { display: block; font-size: 14px; }
+        .produit-infos span.prix { color: #999; font-size: 13px; }
+        .produit-actions { display: flex; gap: 8px; flex-shrink: 0; }
+        .icon-btn { width: 32px; height: 32px; border-radius: 8px; border: none; background: #f5f5f5; color: #777; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 13px; }
+        .icon-btn.favori-actif { background: var(--couleur-accent, #e56400); color: #fff; }
+        .icon-btn.danger:hover { background: #ffe5e5; color: #e00; }
+
+        .badge-statut { background: #f1f1f1; padding: 3px 10px; border-radius: 20px; font-size: 11px; color: #666; }
+
+        /* ---- Commandes ---- */
+        .commande-row { border-bottom: 1px solid #f0f0f0; padding: 12px 0; }
+        .commande-row:last-child { border-bottom: none; }
+        .commande-row strong { font-size: 14px; }
+        .commande-row .total { color: var(--couleur-accent, #e56400); font-weight: bold; float: right; }
+
+        .empty-state { color: #aaa; font-size: 13px; text-align: center; padding: 20px 0; }
+
+        label.champ-label { font-size: 12px; color: #888; display: block; margin-bottom: 6px; }
     </style>
 </head>
 <body>
     <header>
-        <div class="logo"> <a href="index.html"><img src="1C621DE3-4443-4809-A987-882F313088E0_1_105_c.jpeg" alt="" srcset=""></a>Admin</div>
-
-        <button class="admin-btn" style="background:#333; margin-top:10px; width: 150px;" onclick="deconnexion()">Se déconnecter</button>
+        <div class="logo"> <a href="index.html" style="text-decoration: none;"><img src="1C621DE3-4443-4809-A987-882F313088E0_1_105_c.jpeg" alt="CMD." class="logo-img"></a>Admin</div>
     </header>
 
-    <main class="admin-wrap">
-
-        <!-- ===== LOGIN ===== -->
-        <div id="vue-login" class="admin-card">
-            <h2>Connexion</h2>
-            <p style="color:#777; margin-bottom: 20px;">Accédez à votre tableau de bord CMD.</p>
-            <div class="admin-form">
-                <input type="email" id="login-email" placeholder="Email" style="width: 94%;">
-                <input type="password" id="login-password" placeholder="Mot de passe" style="width: 94%;">
-                <button class="admin-btn" onclick="connexion()">Se connecter</button>
-                <p id="login-erreur" style="color:red; margin-top:10px;"></p>
+    <!-- ===== LOGIN ===== -->
+    <div id="vue-login">
+        <div class="login-wrap">
+            <div class="login-card">
+                <h2>Connexion</h2>
+                <p class="sub">Accédez à votre tableau de bord CMD.</p>
+                <div class="admin-form">
+                    <input type="email" id="login-email" placeholder="Email">
+                    <input type="password" id="login-password" placeholder="Mot de passe">
+                    <button class="admin-btn" onclick="connexion()">Se connecter</button>
+                    <p id="login-erreur" style="color:red; margin-top:10px; font-size:13px;"></p>
+                </div>
             </div>
         </div>
+    </div>
 
-        <!-- ===== DASHBOARD ===== -->
-        <div id="vue-dashboard">
-            <div class="admin-card">
-                <h2 id="nom-boutique-admin">Ma boutique</h2>
-                <div class="stats-row">
+    <!-- ===== DASHBOARD ===== -->
+    <div id="vue-dashboard">
+        <main class="admin-shell">
+
+            <div class="admin-topbar">
+                <div>
+                    <h2 id="nom-boutique-admin">Ma boutique</h2>
+                    <div class="boutique-tag">Espace vendeur CMD.</div>
+                </div>
+                <button class="btn-logout-icon" onclick="deconnexion()"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+            </div>
+
+            <!-- ===== ONGLET DASHBOARD ===== -->
+            <div id="onglet-dashboard" class="onglet-panel actif">
+
+                <div class="stats-grid">
                     <div class="stat-box">
+                        <div class="stat-icon"><i class="fa-solid fa-receipt"></i></div>
                         <h2 id="stat-commandes">0</h2>
                         <p>Commandes ce mois</p>
                     </div>
                     <div class="stat-box">
+                        <div class="stat-icon"><i class="fa-solid fa-box"></i></div>
                         <h2 id="stat-produits">0</h2>
                         <p>Produits actifs</p>
                     </div>
                     <div class="stat-box">
+                        <div class="stat-icon"><i class="fa-solid fa-sack-dollar"></i></div>
                         <h2 id="stat-total">0</h2>
                         <p>FCFA ce mois</p>
                     </div>
                 </div>
-            </div>
 
-            <div class="admin-card">
-                <h3>Mes informations</h3>
-                <div class="admin-form">
-                    <label style="font-size:13px; color:#777; width: 94%;">Numéro WhatsApp (sans le +, ex: 2217842178..)</label>
-                    <input type="text" id="info-whatsapp" style="width: 94%;">
-                    <label style="font-size:13px; color:#777; width: 94%;">Numéro Wave</label>
-                    <input type="text" id="info-wave" style="width: 94%;">
-                    <label style="font-size:13px; color:#777; width: 94%;">Numéro Orange Money</label>
-                    <input type="text" id="info-om" style="width: 94%;">
-                    <button class="admin-btn" onclick="enregistrerInfos()">Enregistrer</button>
-                    <p id="info-message" style="margin-top:10px;"></p>
+                <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr);">
+                    <div class="stat-box">
+                        <div class="stat-icon"><i class="fa-solid fa-cart-shopping"></i></div>
+                        <h2 id="stat-panier-moyen">0</h2>
+                        <p>Panier moyen (FCFA)</p>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon"><i class="fa-solid fa-star"></i></div>
+                        <h2 id="stat-produit-top" style="font-size:14px;">—</h2>
+                        <p>Produit le + commandé</p>
+                    </div>
+                </div>
+
+                <div class="admin-card">
+                    <h3><i class="fa-solid fa-chart-column"></i> Commandes des 7 derniers jours</h3>
+                    <div class="chart-bars" id="chart-7jours"></div>
+                </div>
+
+                <div class="admin-card">
+                    <h3><i class="fa-solid fa-clock-rotate-left"></i> Dernières commandes</h3>
+                    <div id="liste-commandes-admin"></div>
                 </div>
             </div>
 
-            <div class="admin-card">
-                <h3>Ajouter un produit</h3>
-                <div class="admin-form">
-                    <input type="text" id="nouveau-nom" placeholder="Nom du produit" style="width: 94%;">
-                    <input type="number" id="nouveau-prix" placeholder="Prix (FCFA)" style="width: 94%;">
-                    <label style="font-size:13px; color:#777;">Photo du produit</label>
-                    <input type="file" id="nouveau-image-fichier" accept="image/*" style="width: 94%;">
-                    <input type="text" id="nouveau-categorie" placeholder="Catégorie (ex: crepes, jus)" style="width: 94%;">
-                    <label style="display:flex; align-items:center; gap:8px; margin-bottom:12px; font-size:14px; color:#555;">
-                        <input type="checkbox" id="nouveau-favori" style="width:auto; margin:0;">
-                        Mettre en avant sur le catalogue (produit populaire)
-                    </label>
-                    <button class="admin-btn" onclick="ajouterProduit()">Ajouter</button>
-                    <p id="produit-message" style="margin-top:10px;"></p>
+            <!-- ===== ONGLET PRODUITS ===== -->
+            <div id="onglet-produits" class="onglet-panel">
+
+                <div class="admin-card">
+                    <h3><i class="fa-solid fa-plus"></i> Ajouter un produit</h3>
+                    <div class="admin-form">
+                        <input type="text" id="nouveau-nom" placeholder="Nom du produit">
+                        <input type="number" id="nouveau-prix" placeholder="Prix (FCFA)">
+                        <label class="champ-label">Photo du produit</label>
+                        <input type="file" id="nouveau-image-fichier" accept="image/*">
+                        <input type="text" id="nouveau-categorie" placeholder="Catégorie (ex: crepes, jus)">
+                        <label style="display:flex; align-items:center; gap:8px; margin-bottom:14px; font-size:14px; color:#555;">
+                            <input type="checkbox" id="nouveau-favori" style="width:auto; margin:0;">
+                            Mettre en avant sur le catalogue (produit populaire)
+                        </label>
+                        <button class="admin-btn" onclick="ajouterProduit()">Ajouter le produit</button>
+                        <p id="produit-message" style="margin-top:10px; font-size:13px;"></p>
+                    </div>
+                </div>
+
+                <div class="admin-card">
+                    <h3><i class="fa-solid fa-list"></i> Mes produits</h3>
+                    <div id="liste-produits-admin"></div>
                 </div>
             </div>
 
-            <div class="admin-card">
-                <h3>Mes produits</h3>
-                <div id="liste-produits-admin"></div>
+            <!-- ===== ONGLET COMMANDES ===== -->
+            <div id="onglet-commandes" class="onglet-panel">
+                <div class="admin-card">
+                    <h3><i class="fa-solid fa-receipt"></i> Toutes les commandes récentes</h3>
+                    <div id="liste-commandes-complete"></div>
+                </div>
             </div>
 
-            <div class="admin-card">
-                <h3>Dernières commandes</h3>
-                <div id="liste-commandes-admin"></div>
+            <!-- ===== ONGLET REGLAGES ===== -->
+            <div id="onglet-reglages" class="onglet-panel">
+                <div class="admin-card">
+                    <h3><i class="fa-solid fa-gear"></i> Mes informations</h3>
+                    <div class="admin-form">
+                        <label class="champ-label">Numéro WhatsApp (sans le +, ex: 221784218267)</label>
+                        <input type="text" id="info-whatsapp">
+                        <label class="champ-label">Numéro Wave</label>
+                        <input type="text" id="info-wave">
+                        <label class="champ-label">Numéro Orange Money</label>
+                        <input type="text" id="info-om">
+                        <button class="admin-btn" onclick="enregistrerInfos()">Enregistrer</button>
+                        <p id="info-message" style="margin-top:10px; font-size:13px;"></p>
+                    </div>
+                </div>
+                <button class="admin-btn secondaire" onclick="deconnexion()">Se déconnecter</button>
             </div>
 
-   
-        </div>
+        </main>
 
-    </main>
-    <footer style="background-color: white; color: black; margin-top: 30px;" >
-        <p>2026 Copyrights - <a href="https://hilarionv.github.io/PORTFOLIO/" style="color: black; font-weight: 500;">By HV</a></p>
-      </footer>
+        <!-- ===== NAVIGATION BAS ===== -->
+        <nav class="admin-tabs">
+            <button class="admin-tab actif" onclick="changerOnglet('dashboard', this)">
+                <i class="fa-solid fa-chart-line"></i>Dashboard
+            </button>
+            <button class="admin-tab" onclick="changerOnglet('produits', this)">
+                <i class="fa-solid fa-box-open"></i>Produits
+            </button>
+            <button class="admin-tab" onclick="changerOnglet('commandes', this)">
+                <i class="fa-solid fa-receipt"></i>Commandes
+            </button>
+            <button class="admin-tab" onclick="changerOnglet('reglages', this)">
+                <i class="fa-solid fa-gear"></i>Réglages
+            </button>
+        </nav>
+    </div>
 
     <script src="supabase-config.js"></script>
     <script src="admin.js"></script>
