@@ -68,6 +68,59 @@ async function chargerFAQAdmin() {
   });
 }
 
+async function chargerAvisAModerer() {
+  const { data: enAttente } = await supabaseClient
+    .from('avis')
+    .select('*')
+    .eq('vendeur_id', vendeurConnecte.id)
+    .eq('statut', 'en_attente')
+    .order('date_creation', { ascending: false });
+
+  const { data: approuves } = await supabaseClient
+    .from('avis')
+    .select('*')
+    .eq('vendeur_id', vendeurConnecte.id)
+    .eq('statut', 'approuve')
+    .order('date_creation', { ascending: false })
+    .limit(20);
+
+  const listeAttente = document.getElementById('liste-avis-attente');
+  const listeApprouves = document.getElementById('liste-avis-approuves');
+  if (!listeAttente || !listeApprouves) return;
+
+  listeAttente.innerHTML = (!enAttente || enAttente.length === 0)
+    ? '<p class="empty-state">Aucun avis en attente.</p>'
+    : enAttente.map(a => `
+        <div class="commande-row">
+          <strong>${a.nom_client}</strong> — ${'★'.repeat(a.note)}${'☆'.repeat(5 - a.note)}
+          <br><small style="color:#999;">${a.commentaire || ''}</small>
+          <div style="margin-top:8px; display:flex; gap:8px;">
+            <button class="admin-btn" style="width:auto; padding:8px 14px;" onclick="modererAvis('${a.id}', 'approuve')">Approuver</button>
+            <button class="admin-btn secondaire" style="width:auto; padding:8px 14px;" onclick="modererAvis('${a.id}', 'rejete')">Rejeter</button>
+          </div>
+        </div>
+      `).join('');
+
+      listeApprouves.innerHTML = (!approuves || approuves.length === 0)
+      ? '<p class="empty-state">Aucun avis publié pour le moment.</p>'
+      : approuves.map(a => `
+          <div class="commande-row">
+            <strong>${a.nom_client}</strong> — ${'★'.repeat(a.note)}${'☆'.repeat(5 - a.note)}
+            <br><small style="color:#999;">${a.commentaire || ''}</small>
+            <div style="margin-top:8px;">
+              <button class="admin-btn secondaire" style="width:auto; padding:6px 12px; font-size:12px;" onclick="modererAvis('${a.id}', 'rejete')">Dépublier</button>
+            </div>
+          </div>
+        `).join('');
+  
+}
+
+async function modererAvis(id, statut) {
+  await supabaseClient.from('avis').update({ statut }).eq('id', id);
+  await chargerAvisAModerer();
+}
+
+
 async function ajouterFAQ() {
   const question = document.getElementById('nouvelle-faq-question').value.trim();
   const reponse = document.getElementById('nouvelle-faq-reponse').value.trim();
@@ -136,6 +189,7 @@ async function chargerDashboard(authUserId) {
   await chargerCommandes();
   remplirInfosVendeur();
   chargerFAQAdmin();
+  chargerAvisAModerer()
 
 }
 

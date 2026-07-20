@@ -4,6 +4,12 @@
 
 let produits = [];
 let vendeurActuel = null;
+let avisPage = 0;
+const avisParPage = 5;
+let avisEnChargement = false;
+let avisTermine = false;
+let noteSelectionnee = 0;
+
 
 async function chargerBoutique() {
   const debutChargement = Date.now();
@@ -44,7 +50,9 @@ async function chargerBoutique() {
   mettreAJourCompteur();
   remplirPaiement();
   chargerFAQ();
+  chargerAvis(true);
   cacherEcranChargement(debutChargement);
+
 
   // Si on est sur la page produit (panier.html?id=...), on affiche son détail
   if (typeof afficherProduitDetail === 'function') afficherProduitDetail();
@@ -79,6 +87,7 @@ function appliquerIdentiteVendeur(vendeur) {
     lienWhatsapp.href = `https://wa.me/${vendeur.numero_whatsapp}?text=Bonjour, je voudrais passer une commande !`;
   }
 }
+
 
 function remplirPaiement() {
   if (!vendeurActuel) return;
@@ -124,6 +133,130 @@ async function chargerFAQ() {
 function toggleFAQ(i) {
   document.getElementById(`faq-item-${i}`).classList.toggle('ouvert');
 }
+
+// ============================================
+// Avis clients (soumission + défilement infini)
+// ============================================
+function toggleFormulaireAvis() {
+  const form = document.getElementById('formulaire-avis');
+  if (form) form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+
+// Gestion du clic sur les étoiles
+document.addEventListener('click', (e) => {
+  if (e.target.closest('#etoiles-input') && e.target.dataset.valeur) {
+    noteSelectionnee = parseInt(e.target.dataset.valeur);
+    document.querySelectorAll('#etoiles-input span').forEach(etoile => {
+      etoile.classList.toggle('active', parseInt(etoile.dataset.valeur) <= noteSelectionnee);
+    });
+  }
+});
+
+async function envoyerAvis() {
+  const nom = document.getElementById('avis-nom').value.trim();
+  const numero = document.getElementById('avis-numero').value.trim();
+  const commentaire = document.getElementById('avis-commentaire').value.trim();
+  const messageEl = document.getElementById('avis-message');
+
+  if (!nom || !numero || !noteSelectionnee) {
+    messageEl.textContent = "Nom, numéro et note sont obligatoires.";
+    messageEl.style.color = 'red';
+    return;
+  }
+
+  if (!vendeurActuel) return;
+
+  const { error } = await supabaseClient.from('avis').insert({
+    vendeur_id: vendeurActuel.id,
+    nom_client: nom,
+    numero_client: numero,
+    note: noteSelectionnee,
+    commentaire: commentaire
+  });
+
+  if (error) {
+    messageEl.textContent = "Erreur lors de l'envoi.";
+    messageEl.style.color = 'red';
+    return;
+  }
+
+  messageEl.textContent = "Merci ! Votre avis sera publié après vérification.";
+  messageEl.style.color = 'green';
+
+  document.getElementById('avis-nom').value = '';
+  document.getElementById('avis-numero').value = '';
+  document.getElementById('avis-commentaire').value = '';
+  noteSelectionnee = 0;
+  document.querySelectorAll('#etoiles-input span').forEach(e => e.classList.remove('active'));
+
+  setTimeout(() => {
+    toggleFormulaireAvis();
+    messageEl.textContent = '';
+  }, 2500);
+}
+
+async function chargerAvis(reset = false) {
+  if (avisEnChargement || avisTermine || !vendeurActuel) return;
+
+  const conteneur = document.getElementById('avis-liste');
+  if (!conteneur) return; // pas sur cette page
+
+  if (reset) {
+    avisPage = 0;
+    avisTermine = false;
+    conteneur.innerHTML = '';
+  }
+
+  avisEnChargement = true;
+
+  const debut = avisPage * avisParPage;
+  const fin = debut + avisParPage - 1;
+
+  const { data: avis, error } = await supabaseClient
+    .from('avis')
+    .select('*')
+    .eq('vendeur_id', vendeurActuel.id)
+    .eq('statut', 'approuve')
+    .order('date_creation', { ascending: false })
+    .range(debut, fin);
+
+  avisEnChargement = false;
+
+  if (error || !avis || avis.length === 0) {
+    avisTermine = true;
+    if (avisPage === 0) {
+      conteneur.innerHTML = '<p style="color:#999; font-size:14px;">Aucun avis pour le moment.</p>';
+    }
+    return;
+  }
+
+  avis.forEach(a => {
+    const div = document.createElement('div');
+    div.classList.add('avis-item');
+    div.innerHTML = `
+      <div class="avis-haut">
+        <span class="avis-nom">${a.nom_client}</span>
+        <span class="avis-etoiles">${'★'.repeat(a.note)}${'☆'.repeat(5 - a.note)}</span>
+      </div>
+      <p class="avis-texte">${a.commentaire || ''}</p>
+    `;
+    conteneur.appendChild(div);
+  });
+
+  avisPage++;
+  if (avis.length < avisParPage) avisTermine = true;
+}
+
+// Défilement infini : observe la sentinelle en bas de la liste d'avis
+const observateurAvis = new IntersectionObserver((entries) => {
+  if (entries[0].isIntersecting) chargerAvis();
+}, { root: document.getElementById('avis-liste')?.parentElement || null, rootMargin: '0px 300px 0px 0px' });
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  const sentinelle = document.getElementById('avis-sentinelle');
+  if (sentinelle) observateurAvis.observe(sentinelle);
+});
 
 function genererCards() {
   const boutonsContainer = document.getElementById('categories-boutons');

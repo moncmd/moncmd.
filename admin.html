@@ -200,6 +200,20 @@
                 </div>
             </div>
 
+
+  <!-- ===== ONGLET AVIS ===== -->
+            <div id="onglet-avis" class="onglet-panel">
+                <div class="admin-card">
+                    <h3><i class="fa-solid fa-hourglass-half"></i> Avis en attente</h3>
+                    <div id="liste-avis-attente"></div>
+                </div>
+                <div class="admin-card">
+                    <h3><i class="fa-solid fa-check"></i> Avis publiés</h3>
+                    <div id="liste-avis-approuves"></div>
+                </div>
+            </div>
+            
+
             <!-- ===== ONGLET REGLAGES ===== -->
             <div id="onglet-reglages" class="onglet-panel">
                 <div class="admin-card">
@@ -245,6 +259,10 @@
             <button class="admin-tab" onclick="changerOnglet('reglages', this)">
                 <i class="fa-solid fa-gear"></i>Réglages
             </button>
+            <button class="admin-tab" onclick="changerOnglet('avis', this)">
+                <i class="fa-solid fa-star"></i>Avis
+            </button>
+            
         </nav>
     </div>
 

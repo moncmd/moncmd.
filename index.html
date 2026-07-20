@@ -51,6 +51,33 @@
         <!-- généré dynamiquement selon les catégories du vendeur -->
       </div>
       <!-- Section FAQ -->
+       <!-- Section Avis clients -->
+<section id="avis-section" class="avis-section">
+  <h2 class="avis-titre">Avis clients</h2>
+
+  <button id="btn-toggle-avis" class="btn-laisser-avis" onclick="toggleFormulaireAvis()">
+      Laisser un avis ✎
+  </button>
+
+  <div id="formulaire-avis" class="formulaire-avis" style="display:none;">
+      <input type="text" id="avis-nom" placeholder="Votre nom">
+      <input type="text" id="avis-numero" placeholder="Votre numéro">
+      <div class="etoiles-input" id="etoiles-input">
+          <span data-valeur="1">★</span>
+          <span data-valeur="2">★</span>
+          <span data-valeur="3">★</span>
+          <span data-valeur="4">★</span>
+          <span data-valeur="5">★</span>
+      </div>
+      <textarea id="avis-commentaire" placeholder="Votre commentaire" rows="3"></textarea>
+      <button class="btn-envoyer-avis" onclick="envoyerAvis()">Envoyer</button>
+      <p id="avis-message" style="margin-top:8px; font-size:13px;"></p>
+  </div>
+
+  <div id="avis-liste"></div>
+  <div id="avis-sentinelle" style="height:1px;"></div>
+</section>
+
 <section id="faq-section" class="faq-section">
   <h2 class="faq-titre">Questions fréquentes</h2>
   <div id="faq-liste"></div>
