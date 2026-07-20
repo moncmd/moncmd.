@@ -35,6 +35,72 @@ async function deconnexion() {
   document.getElementById('vue-login').style.display = 'block';
   document.getElementById('vue-dashboard').style.display = 'none';
 }
+async function chargerFAQAdmin() {
+  const { data: faqs } = await supabaseClient
+    .from('faq')
+    .select('*')
+    .eq('vendeur_id', vendeurConnecte.id)
+    .order('ordre', { ascending: true });
+
+  const liste = document.getElementById('liste-faq-admin');
+  if (!liste) return;
+  liste.innerHTML = '';
+
+  if (!faqs || faqs.length === 0) {
+    liste.innerHTML = '<p class="empty-state">Aucune question pour le moment.</p>';
+    return;
+  }
+
+  faqs.forEach(f => {
+    liste.innerHTML += `
+      <div class="produit-row">
+        <div class="produit-infos">
+          <strong>${f.question}</strong>
+          <span class="prix">${f.reponse}</span>
+        </div>
+        <div class="produit-actions">
+          <button class="icon-btn danger" onclick="supprimerFAQ('${f.id}')">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    `;
+  });
+}
+
+async function ajouterFAQ() {
+  const question = document.getElementById('nouvelle-faq-question').value.trim();
+  const reponse = document.getElementById('nouvelle-faq-reponse').value.trim();
+  const messageEl = document.getElementById('faq-message');
+
+  if (!question || !reponse) {
+    messageEl.textContent = "Question et réponse sont obligatoires.";
+    messageEl.style.color = 'red';
+    return;
+  }
+
+  const { error } = await supabaseClient.from('faq').insert({
+    vendeur_id: vendeurConnecte.id, question, reponse
+  });
+
+  if (error) {
+    messageEl.textContent = "Erreur lors de l'ajout.";
+    messageEl.style.color = 'red';
+    return;
+  }
+
+  messageEl.textContent = "Question ajoutée ✓";
+  messageEl.style.color = 'green';
+  document.getElementById('nouvelle-faq-question').value = '';
+  document.getElementById('nouvelle-faq-reponse').value = '';
+  await chargerFAQAdmin();
+}
+
+async function supprimerFAQ(id) {
+  await supabaseClient.from('faq').delete().eq('id', id);
+  await chargerFAQAdmin();
+}
+
 
 // ---- Navigation par onglets ----
 function changerOnglet(nom, boutonEl) {
@@ -69,6 +135,8 @@ async function chargerDashboard(authUserId) {
   await chargerProduits();
   await chargerCommandes();
   remplirInfosVendeur();
+  chargerFAQAdmin();
+
 }
 
 function remplirInfosVendeur() {

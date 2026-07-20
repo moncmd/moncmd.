@@ -43,6 +43,7 @@ async function chargerBoutique() {
   genererCards();
   mettreAJourCompteur();
   remplirPaiement();
+  chargerFAQ();
   cacherEcranChargement(debutChargement);
 
   // Si on est sur la page produit (panier.html?id=...), on affiche son détail
@@ -85,6 +86,43 @@ function remplirPaiement() {
   const omEl = document.getElementById('om-numero');
   if (waveEl) waveEl.textContent = vendeurActuel.wave_numero || '—';
   if (omEl) omEl.textContent = vendeurActuel.om_numero || '—';
+}
+
+// ============================================
+// FAQ (par vendeur, minimaliste, accordéon)
+// ============================================
+async function chargerFAQ() {
+  if (!vendeurActuel) return;
+
+  const { data: faqs } = await supabaseClient
+    .from('faq')
+    .select('*')
+    .eq('vendeur_id', vendeurActuel.id)
+    .order('ordre', { ascending: true });
+
+  const conteneur = document.getElementById('faq-liste');
+  if (!conteneur) return; // pas sur cette page
+
+  const section = document.getElementById('faq-section');
+
+  if (!faqs || faqs.length === 0) {
+    if (section) section.style.display = 'none';
+    return;
+  }
+
+  conteneur.innerHTML = faqs.map((f, i) => `
+    <div class="faq-item" id="faq-item-${i}">
+      <div class="faq-question" onclick="toggleFAQ(${i})">
+        <span>${f.question}</span>
+        <span class="icone">+</span>
+      </div>
+      <div class="faq-reponse">${f.reponse}</div>
+    </div>
+  `).join('');
+}
+
+function toggleFAQ(i) {
+  document.getElementById(`faq-item-${i}`).classList.toggle('ouvert');
 }
 
 function genererCards() {
