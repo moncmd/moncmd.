@@ -95,3 +95,35 @@ values ('demo', 'CMD Démo', '221784218267', '784218267', '775683106');
 --   for update using (
 --     id in (select vendeur_id from admins where auth_user_id = auth.uid())
 --   );
+
+-- ============================================
+-- MIGRATION : formule vendeur (standard/premium), stock produit,
+-- liste d'attente de réassort — à exécuter dans Supabase SQL Editor
+-- ============================================
+alter table vendeurs add column if not exists formule text default 'standard';
+alter table produits add column if not exists quantite_stock integer;
+
+create table if not exists liste_attente_stock (
+  id uuid primary key default gen_random_uuid(),
+  vendeur_id uuid references vendeurs(id) on delete cascade,
+  produit_id uuid references produits(id) on delete cascade,
+  nom_client text,
+  numero_client text not null,
+  contacte boolean default false,
+  date_creation timestamp default now()
+);
+
+alter table liste_attente_stock enable row level security;
+
+create policy "Creation publique liste attente" on liste_attente_stock
+  for insert with check (true);
+
+create policy "Vendeur voit sa liste attente" on liste_attente_stock
+  for select using (
+    vendeur_id in (select vendeur_id from admins where auth_user_id = auth.uid())
+  );
+
+create policy "Vendeur met a jour sa liste attente" on liste_attente_stock
+  for update using (
+    vendeur_id in (select vendeur_id from admins where auth_user_id = auth.uid())
+  );

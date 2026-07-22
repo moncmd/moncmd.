@@ -142,7 +142,7 @@
                     </div>
                 </div>
 
-                <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr);">
+                <div class="stats-grid" id="stats-avancees" style="grid-template-columns: repeat(2, 1fr);">
                     <div class="stat-box">
                         <div class="stat-icon"><i class="fa-solid fa-cart-shopping"></i></div>
                         <h2 id="stat-panier-moyen">0</h2>
@@ -155,7 +155,7 @@
                     </div>
                 </div>
 
-                <div class="admin-card">
+                <div class="admin-card" id="carte-graphique-7jours">
                     <h3><i class="fa-solid fa-chart-column"></i> Commandes des 7 derniers jours</h3>
                     <div class="chart-bars" id="chart-7jours"></div>
                 </div>
@@ -177,6 +177,10 @@
                         <label class="champ-label">Photo du produit</label>
                         <input type="file" id="nouveau-image-fichier" accept="image/*">
                         <input type="text" id="nouveau-categorie" placeholder="Catégorie (ex: crepes, jus)">
+                        <div id="champ-stock-premium" style="display:none;">
+                            <label class="champ-label">Quantité en stock (laisser vide si illimité)</label>
+                            <input type="number" id="nouveau-stock" placeholder="Ex: 12">
+                        </div>
                         <label style="display:flex; align-items:center; gap:8px; margin-bottom:14px; font-size:14px; color:#555;">
                             <input type="checkbox" id="nouveau-favori" style="width:auto; margin:0;">
                             Mettre en avant sur le catalogue (produit populaire)
@@ -189,6 +193,11 @@
                 <div class="admin-card">
                     <h3><i class="fa-solid fa-list"></i> Mes produits</h3>
                     <div id="liste-produits-admin"></div>
+                </div>
+
+                <div class="admin-card" id="carte-liste-attente" style="display:none;">
+                    <h3><i class="fa-solid fa-bell"></i> Clients à prévenir (réassort)</h3>
+                    <div id="liste-attente-stock-admin"></div>
                 </div>
             </div>
 

@@ -132,6 +132,19 @@ async function ajouterFAQ() {
     return;
   }
 
+  if (vendeurConnecte.formule !== 'premium') {
+    const { count } = await supabaseClient
+      .from('faq')
+      .select('*', { count: 'exact', head: true })
+      .eq('vendeur_id', vendeurConnecte.id);
+
+    if ((count || 0) >= 5) {
+      messageEl.textContent = "Limite de 5 questions atteinte avec la formule Standard. Passez en Premium pour en ajouter davantage.";
+      messageEl.style.color = 'red';
+      return;
+    }
+  }
+
   const { error } = await supabaseClient.from('faq').insert({
     vendeur_id: vendeurConnecte.id, question, reponse
   });
@@ -189,8 +202,67 @@ async function chargerDashboard(authUserId) {
   await chargerCommandes();
   remplirInfosVendeur();
   chargerFAQAdmin();
-  chargerAvisAModerer()
+  chargerAvisAModerer();
+  appliquerLimitesFormule();
 
+}
+
+// ---- Gating Standard / Premium ----
+function appliquerLimitesFormule() {
+  const estPremium = vendeurConnecte.formule === 'premium';
+
+  const statsAvancees = document.getElementById('stats-avancees');
+  const carteGraphique = document.getElementById('carte-graphique-7jours');
+  const champStock = document.getElementById('champ-stock-premium');
+  const carteListeAttente = document.getElementById('carte-liste-attente');
+
+  if (statsAvancees) statsAvancees.style.display = estPremium ? 'grid' : 'none';
+  if (carteGraphique) carteGraphique.style.display = estPremium ? 'block' : 'none';
+  if (champStock) champStock.style.display = estPremium ? 'block' : 'none';
+
+  if (estPremium) {
+    if (carteListeAttente) carteListeAttente.style.display = 'block';
+    chargerListeAttenteStock();
+  }
+}
+
+async function chargerListeAttenteStock() {
+  const conteneur = document.getElementById('liste-attente-stock-admin');
+  if (!conteneur) return;
+
+  const { data: attente } = await supabaseClient
+    .from('liste_attente_stock')
+    .select('*, produits(nom)')
+    .eq('vendeur_id', vendeurConnecte.id)
+    .eq('contacte', false)
+    .order('date_creation', { ascending: false });
+
+  if (!attente || attente.length === 0) {
+    conteneur.innerHTML = '<p class="empty-state">Personne en attente pour le moment.</p>';
+    return;
+  }
+
+  conteneur.innerHTML = attente.map(a => `
+    <div class="produit-row">
+      <div class="produit-infos">
+        <strong>${a.produits ? a.produits.nom : 'Produit'}</strong>
+        <span class="prix">${a.numero_client}</span>
+      </div>
+      <div class="produit-actions">
+        <a href="https://wa.me/${a.numero_client.replace(/\D/g,'')}?text=Bonjour, le produit que vous attendiez est de nouveau disponible !" target="_blank" class="icon-btn" title="Contacter sur WhatsApp">
+          <i class="fa-brands fa-whatsapp"></i>
+        </a>
+        <button class="icon-btn" title="Marquer comme contacté" onclick="marquerContacte('${a.id}')">
+          <i class="fa-solid fa-check"></i>
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function marquerContacte(id) {
+  await supabaseClient.from('liste_attente_stock').update({ contacte: true }).eq('id', id);
+  await chargerListeAttenteStock();
 }
 
 function remplirInfosVendeur() {
@@ -344,6 +416,11 @@ async function chargerProduits() {
 
   produits.forEach(p => {
     const imgSrc = p.image_url || '';
+    const estPremium = vendeurConnecte.formule === 'premium';
+    const infoStock = estPremium
+      ? `<span class="prix">${p.prix.toLocaleString()} FCFA · ${p.categorie} · Stock : ${p.quantite_stock === null || p.quantite_stock === undefined ? 'illimité' : p.quantite_stock}</span>`
+      : `<span class="prix">${p.prix.toLocaleString()} FCFA · ${p.categorie}</span>`;
+
     liste.innerHTML += `
       <div class="produit-row">
         ${imgSrc
@@ -351,9 +428,13 @@ async function chargerProduits() {
           : `<div class="produit-thumb" style="display:flex;align-items:center;justify-content:center;color:#ccc;"><i class="fa-solid fa-image"></i></div>`}
         <div class="produit-infos">
           <strong>${p.nom}</strong>
-          <span class="prix">${p.prix.toLocaleString()} FCFA · ${p.categorie}</span>
+          ${infoStock}
         </div>
         <div class="produit-actions">
+          ${estPremium ? `
+          <button class="icon-btn" title="Modifier le stock" onclick="modifierStock('${p.id}', ${p.quantite_stock === null || p.quantite_stock === undefined ? 'null' : p.quantite_stock})">
+            <i class="fa-solid fa-boxes-stacked"></i>
+          </button>` : ''}
           <button class="icon-btn ${p.favori ? 'favori-actif' : ''}" title="${p.favori ? 'Retirer de la une' : 'Mettre en avant'}" onclick="basculerFavori('${p.id}', ${p.favori})">
             <i class="fa-solid fa-star"></i>
           </button>
@@ -366,18 +447,52 @@ async function chargerProduits() {
   });
 }
 
+async function modifierStock(id, stockActuel) {
+  const saisie = prompt("Nouvelle quantité en stock (laisser vide pour illimité) :", stockActuel === null ? '' : stockActuel);
+  if (saisie === null) return; // annulé
+
+  const valeur = saisie.trim() === '' ? null : parseInt(saisie);
+  await supabaseClient.from('produits').update({ quantite_stock: valeur }).eq('id', id);
+  await chargerProduits();
+}
+
 async function ajouterProduit() {
   const nom = document.getElementById('nouveau-nom').value;
   const prix = parseInt(document.getElementById('nouveau-prix').value);
   const fichier = document.getElementById('nouveau-image-fichier').files[0];
   const categorie = document.getElementById('nouveau-categorie').value || 'general';
   const favori = document.getElementById('nouveau-favori').checked;
+  const stockInput = document.getElementById('nouveau-stock');
   const messageEl = document.getElementById('produit-message');
 
   if (!nom || !prix) {
     messageEl.textContent = "Nom et prix sont obligatoires.";
     messageEl.style.color = 'red';
     return;
+  }
+
+  // ---- Limites de la formule Standard ----
+  if (vendeurConnecte.formule !== 'premium') {
+    const { data: produitsExistants } = await supabaseClient
+      .from('produits')
+      .select('categorie')
+      .eq('vendeur_id', vendeurConnecte.id)
+      .eq('actif', true);
+
+    const nbProduits = produitsExistants ? produitsExistants.length : 0;
+    const categoriesExistantes = new Set((produitsExistants || []).map(p => p.categorie || 'general'));
+
+    if (nbProduits >= 20) {
+      messageEl.textContent = "Limite de 20 produits atteinte avec la formule Standard. Passez en Premium pour continuer.";
+      messageEl.style.color = 'red';
+      return;
+    }
+
+    if (!categoriesExistantes.has(categorie) && categoriesExistantes.size >= 5) {
+      messageEl.textContent = "Limite de 5 catégories atteinte avec la formule Standard. Passez en Premium pour en ajouter davantage.";
+      messageEl.style.color = 'red';
+      return;
+    }
   }
 
   let image_url = '';
@@ -407,10 +522,16 @@ async function ajouterProduit() {
     image_url = urlData.publicUrl;
   }
 
-  const { error } = await supabaseClient.from('produits').insert({
+  const donneesProduit = {
     vendeur_id: vendeurConnecte.id,
     nom, prix, image_url, categorie, favori
-  });
+  };
+
+  if (vendeurConnecte.formule === 'premium' && stockInput && stockInput.value !== '') {
+    donneesProduit.quantite_stock = parseInt(stockInput.value);
+  }
+
+  const { error } = await supabaseClient.from('produits').insert(donneesProduit);
 
   if (error) {
     messageEl.textContent = "Erreur lors de l'ajout.";
@@ -425,6 +546,7 @@ async function ajouterProduit() {
   document.getElementById('nouveau-image-fichier').value = '';
   document.getElementById('nouveau-categorie').value = '';
   document.getElementById('nouveau-favori').checked = false;
+  if (stockInput) stockInput.value = '';
 
   await chargerProduits();
   await chargerStats();

@@ -4,12 +4,34 @@
 
 let produits = [];
 let vendeurActuel = null;
-let avisPage = 0;
-const avisParPage = 5;
-let avisEnChargement = false;
-let avisTermine = false;
 let noteSelectionnee = 0;
 
+// ============================================
+// Mode sombre (toggle clair/sombre, préférence mémorisée)
+// ============================================
+function initModeSombre() {
+  const preference = localStorage.getItem('cmd-mode-sombre');
+  if (preference === 'actif') {
+    document.body.classList.add('mode-sombre');
+  }
+  mettreAJourIconeModeSombre();
+}
+
+function toggleModeSombre() {
+  document.body.classList.toggle('mode-sombre');
+  const actif = document.body.classList.contains('mode-sombre');
+  localStorage.setItem('cmd-mode-sombre', actif ? 'actif' : 'inactif');
+  mettreAJourIconeModeSombre();
+}
+
+function mettreAJourIconeModeSombre() {
+  const bouton = document.getElementById('btn-toggle-mode-sombre');
+  if (!bouton) return;
+  const actif = document.body.classList.contains('mode-sombre');
+  bouton.innerHTML = actif ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+}
+
+document.addEventListener('DOMContentLoaded', initModeSombre);
 
 async function chargerBoutique() {
   const debutChargement = Date.now();
@@ -50,7 +72,7 @@ async function chargerBoutique() {
   mettreAJourCompteur();
   remplirPaiement();
   chargerFAQ();
-  chargerAvis(true);
+  chargerAvis();
   cacherEcranChargement(debutChargement);
 
 
@@ -195,22 +217,13 @@ async function envoyerAvis() {
   }, 2500);
 }
 
-async function chargerAvis(reset = false) {
-  if (avisEnChargement || avisTermine || !vendeurActuel) return;
+async function chargerAvis() {
+  if (!vendeurActuel) return;
 
   const conteneur = document.getElementById('avis-liste');
   if (!conteneur) return; // pas sur cette page
 
-  if (reset) {
-    avisPage = 0;
-    avisTermine = false;
-    conteneur.innerHTML = '';
-  }
-
-  avisEnChargement = true;
-
-  const debut = avisPage * avisParPage;
-  const fin = debut + avisParPage - 1;
+  const limite = (vendeurActuel.formule === 'premium') ? 30 : 10;
 
   const { data: avis, error } = await supabaseClient
     .from('avis')
@@ -218,45 +231,26 @@ async function chargerAvis(reset = false) {
     .eq('vendeur_id', vendeurActuel.id)
     .eq('statut', 'approuve')
     .order('date_creation', { ascending: false })
-    .range(debut, fin);
-
-  avisEnChargement = false;
+    .limit(limite);
 
   if (error || !avis || avis.length === 0) {
-    avisTermine = true;
-    if (avisPage === 0) {
-      conteneur.innerHTML = '<p style="color:#999; font-size:14px;">Aucun avis pour le moment.</p>';
-    }
+    conteneur.innerHTML = '<p style="color:#999; font-size:14px; padding:8px 0;">Aucun avis pour le moment. Soyez le premier !</p>';
     return;
   }
 
-  avis.forEach(a => {
-    const div = document.createElement('div');
-    div.classList.add('avis-item');
-    div.innerHTML = `
+  const html = avis.map(a => `
+    <div class="avis-item">
       <div class="avis-haut">
         <span class="avis-nom">${a.nom_client}</span>
         <span class="avis-etoiles">${'★'.repeat(a.note)}${'☆'.repeat(5 - a.note)}</span>
       </div>
       <p class="avis-texte">${a.commentaire || ''}</p>
-    `;
-    conteneur.appendChild(div);
-  });
+    </div>
+  `).join('');
 
-  avisPage++;
-  if (avis.length < avisParPage) avisTermine = true;
+  // On duplique la liste une fois pour que la boucle du défilement soit invisible
+  conteneur.innerHTML = html + html;
 }
-
-// Défilement infini : observe la sentinelle en bas de la liste d'avis
-const observateurAvis = new IntersectionObserver((entries) => {
-  if (entries[0].isIntersecting) chargerAvis();
-}, { root: document.getElementById('avis-liste')?.parentElement || null, rootMargin: '0px 300px 0px 0px' });
-
-
-document.addEventListener('DOMContentLoaded', () => {
-  const sentinelle = document.getElementById('avis-sentinelle');
-  if (sentinelle) observateurAvis.observe(sentinelle);
-});
 
 function genererCards() {
   const boutonsContainer = document.getElementById('categories-boutons');
@@ -310,14 +304,31 @@ function genererCards() {
     produitsCategorie.forEach(produit => {
       const li = document.createElement('li');
       li.classList.add('splide__slide');
+
+      const stockBas = produit.quantite_stock !== null && produit.quantite_stock !== undefined
+        && produit.quantite_stock > 0 && produit.quantite_stock <= 3;
+      const rupture = produit.quantite_stock === 0;
+
+      const blocAction = rupture ? `
+            <a href="panier.html?id=${produit.id}">Voir</a>
+            <div class="attente-stock">
+                <input type="text" class="input-attente-stock" id="attente-numero-${produit.id}" placeholder="Votre numéro">
+                <button class="btn-attente-stock" onclick="demanderNotifStock('${produit.id}')">Me prévenir</button>
+                <p class="attente-message" id="attente-message-${produit.id}"></p>
+            </div>
+          ` : `
+            <a href="panier.html?id=${produit.id}">Voir</a>
+            <a href="javascript:void(0)" onclick="ajouterAuPanier('${produit.id}')">Ajouter au panier</a>
+          `;
+
       li.innerHTML = `
         <div class="product-card">
             ${produit.favori ? '<span class="badge-favori">★ Populaire</span>' : ''}
+            ${rupture ? '<span class="badge-rupture">Rupture de stock</span>' : (stockBas ? `<span class="badge-stock-bas">Il en reste ${produit.quantite_stock} !</span>` : '')}
             <img src="${produit.image_url}" alt="${produit.nom}">
             <p class="produit">${produit.nom}</p>
             <p class="prix">${produit.prix} FCFA</p>
-            <a href="panier.html?id=${produit.id}">Voir</a>
-            <a href="javascript:void(0)" onclick="ajouterAuPanier('${produit.id}')">Ajouter au panier</a>
+            ${blocAction}
         </div>
       `;
       liste.appendChild(li);
@@ -388,6 +399,36 @@ function ajouterAuPanier(id, commentaire = "") {
 
   localStorage.setItem('panier', JSON.stringify(panierData));
   mettreAJourCompteur();
+}
+
+// ============================================
+// Liste d'attente de réassort (produit en rupture)
+// ============================================
+async function demanderNotifStock(produitId) {
+  const inputEl = document.getElementById(`attente-numero-${produitId}`);
+  const messageEl = document.getElementById(`attente-message-${produitId}`);
+  const numero = inputEl ? inputEl.value.trim() : '';
+
+  if (!numero) {
+    if (messageEl) { messageEl.textContent = "Entrez votre numéro."; messageEl.style.color = 'red'; }
+    return;
+  }
+
+  if (!vendeurActuel) return;
+
+  const { error } = await supabaseClient.from('liste_attente_stock').insert({
+    vendeur_id: vendeurActuel.id,
+    produit_id: produitId,
+    numero_client: numero
+  });
+
+  if (error) {
+    if (messageEl) { messageEl.textContent = "Erreur, réessayez."; messageEl.style.color = 'red'; }
+    return;
+  }
+
+  if (messageEl) { messageEl.textContent = "C'est noté, vous serez prévenu ✓"; messageEl.style.color = 'green'; }
+  if (inputEl) inputEl.value = '';
 }
 
 document.addEventListener('DOMContentLoaded', chargerBoutique);

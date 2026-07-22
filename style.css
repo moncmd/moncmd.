@@ -612,6 +612,63 @@ height: 60px;
     z-index: 2;
 }
 
+.badge-stock-bas,
+.badge-rupture {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    z-index: 2;
+}
+
+.badge-stock-bas {
+    background: #fff3e0;
+    color: #b8620a;
+}
+
+.badge-rupture {
+    background: #f0f0f0;
+    color: #888;
+}
+
+.attente-stock {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.attente-stock .input-attente-stock {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    font-family: "Montserrat", sans-serif;
+    font-size: 13px;
+}
+
+.attente-stock .btn-attente-stock {
+    background: transparent;
+    color: var(--couleur-accent, #e56400);
+    border: 2px solid var(--couleur-accent, #e56400);
+    border-radius: 10px;
+    padding: 10px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.attente-stock .btn-attente-stock:hover {
+    background: var(--couleur-accent, #e56400);
+    color: #fff;
+}
+
+.attente-message {
+    font-size: 12px;
+    margin: 0;
+}
+
 .logo img {
     border-radius: 100%;
     height: 43px;
@@ -742,31 +799,36 @@ footer a {
     font-size: 14px;
 }
 
-#avis-liste {
-    display: flex;
-    overflow-x: auto;
-    gap: 14px;
+.avis-marquee-wrapper {
+    overflow: hidden;
+    width: 100%;
     padding: 4px 0 16px;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
+    -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
 }
 
-#avis-liste::-webkit-scrollbar {
-    display: none;
+.avis-marquee-track {
+    display: flex;
+    gap: 14px;
+    width: max-content;
+    animation: defiler-avis 30s linear infinite;
+}
+
+.avis-marquee-wrapper:hover .avis-marquee-track {
+    animation-play-state: paused;
+}
+
+@keyframes defiler-avis {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
 }
 
 .avis-item {
     flex: 0 0 240px;
-    scroll-snap-align: start;
     background: #fafafa;
     border-radius: 14px;
     padding: 16px;
     border-bottom: none;
-}
-
-#avis-sentinelle {
-    flex: 0 0 1px;
-    height: 1px;
 }
 
 .avis-item .avis-haut {
@@ -792,3 +854,174 @@ footer a {
     line-height: 1.5;
 }
 
+
+/* ============================================
+   MODE SOMBRE (toggle clair/sombre)
+   ============================================ */
+.btn-mode-sombre {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: #1a1a1a;
+    display: flex;
+    align-items: center;
+    padding: 0;
+}
+
+body.mode-sombre {
+    background-color: #121212;
+    color: #e8e8e8;
+}
+
+body.mode-sombre header {
+    background-color: #1a1a1a;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+
+body.mode-sombre nav a,
+body.mode-sombre .btn-mode-sombre {
+    color: #e8e8e8;
+}
+
+body.mode-sombre nav a svg path {
+    fill: #e8e8e8;
+}
+
+body.mode-sombre .menu h1 {
+    color: #f5f5f5;
+}
+
+body.mode-sombre .selectt button {
+    background-color: #1e1e1e;
+    color: #e8e8e8;
+    border-color: #333;
+}
+
+body.mode-sombre .selectt button:hover,
+body.mode-sombre .selectt button.active {
+    background-color: #262626;
+    color: var(--couleur-accent, #e56400);
+    border-color: var(--couleur-accent, #e56400);
+}
+
+body.mode-sombre .selecttt button {
+    background-color: #1e1e1e;
+}
+
+body.mode-sombre .product-card {
+    background-color: #1e1e1e;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+
+body.mode-sombre .product-card img {
+    background-color: #262626;
+}
+
+body.mode-sombre .product-card .produit {
+    color: #f0f0f0;
+}
+
+body.mode-sombre footer {
+    background-color: #000000;
+}
+
+body.mode-sombre .right .nom,
+body.mode-sombre .rightt h3,
+body.mode-sombre .form label {
+    color: #f0f0f0;
+}
+
+body.mode-sombre .right .description {
+    color: #aaa;
+}
+
+body.mode-sombre .right textarea,
+body.mode-sombre .form input {
+    background-color: #1e1e1e;
+    color: #e8e8e8;
+    border-color: #333;
+}
+
+body.mode-sombre #panier {
+    background-color: #181818;
+    box-shadow: -4px 0 15px rgba(0,0,0,0.4);
+}
+
+body.mode-sombre .pan {
+    background-color: #1e1e1e;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+body.mode-sombre .pan .top .details h4 {
+    color: #f0f0f0;
+}
+
+body.mode-sombre .toggle {
+    background-color: #000000;
+}
+
+body.mode-sombre .rightt,
+body.mode-sombre .paiement {
+    background-color: #1e1e1e;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+body.mode-sombre .resume-item {
+    border-color: #333;
+}
+
+body.mode-sombre .resume-item .commentaire {
+    color: #999;
+}
+
+body.mode-sombre .faq-item {
+    border-color: #333;
+}
+
+body.mode-sombre .faq-question {
+    color: #e8e8e8;
+}
+
+body.mode-sombre .faq-reponse {
+    color: #aaa;
+}
+
+body.mode-sombre .avis-item {
+    background-color: #1e1e1e;
+}
+
+body.mode-sombre .avis-item .avis-nom {
+    color: #e8e8e8;
+}
+
+body.mode-sombre .avis-item .avis-texte {
+    color: #aaa;
+}
+
+body.mode-sombre .formulaire-avis {
+    background-color: #1a1a1a;
+}
+
+body.mode-sombre .formulaire-avis input,
+body.mode-sombre .formulaire-avis textarea {
+    background-color: #242424;
+    color: #e8e8e8;
+    border-color: #333;
+}
+
+body.mode-sombre .badge-stock-bas {
+    background-color: #3a2a12;
+    color: #ffb84d;
+}
+
+body.mode-sombre .badge-rupture {
+    background-color: #2a2a2a;
+    color: #aaa;
+}
+
+body.mode-sombre .attente-stock .input-attente-stock {
+    background-color: #1e1e1e;
+    color: #e8e8e8;
+    border-color: #333;
+}

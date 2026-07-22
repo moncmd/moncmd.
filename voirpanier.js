@@ -12,6 +12,14 @@ function voirpanier() {
 function afficherContenuPanier() {
     panier.innerHTML = `<button onclick="fermerPanier()" class="toggle">✕</button>`;
 
+    // On retire silencieusement les articles dont le produit n'existe plus
+    const panierValide = panierData.filter(item => produits.some(p => p.id === item.id));
+    if (panierValide.length !== panierData.length) {
+        panierData = panierValide;
+        localStorage.setItem('panier', JSON.stringify(panierData));
+        mettreAJourCompteur();
+    }
+
     if (panierData.length === 0) {
         panier.innerHTML += `<p class="vide">Votre panier est vide 🛒</p>`;
         return;
@@ -20,6 +28,7 @@ function afficherContenuPanier() {
 
     panierData.forEach((item, index) => {
         let produit = produits.find(p => p.id === item.id);
+        if (!produit) return;
 
         panier.innerHTML += `
         <div class="pan"> 
@@ -44,7 +53,7 @@ function afficherContenuPanier() {
     let total = 0;
     panierData.forEach(item => {
         let produit = produits.find(p => p.id === item.id);
-        total += produit.prix * item.quantite;
+        if (produit) total += produit.prix * item.quantite;
     });
 
     panier.innerHTML += `<p class="total">Total : ${total} FCFA</p>`;
